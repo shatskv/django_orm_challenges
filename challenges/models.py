@@ -16,8 +16,6 @@ class Book(models.Model):
     
 
 class Laptop(models.Model):
-    
-
     brand = models.CharField(max_length=256)
     model = models.CharField(max_length=256)
     quantity = models.IntegerField()
@@ -34,8 +32,8 @@ class Laptop(models.Model):
                 'model': self.model,
                 'quantity': self.quantity,
                 'price': self.price,
-                'created_at': str(self.created_at),
-                'updated_at': str(self.updated_at)
+                'created_at': self.created_at.isoformat(),
+                'updated_at': self.updated_at.isoformat()
                 }
     
 
@@ -46,11 +44,11 @@ class Blog(models.Model):
 
     title = models.CharField(max_length=256)
     text = models.TextField()
+    category = models.CharField(max_length=50, choices=get_tuples_from_list(ALL_CATEGORIES), null=True)
     author = models.CharField(max_length=256)
     status = models.CharField(max_length=25, choices=get_tuples_from_list(ALL_STATUSES))
     created_at = models.DateTimeField(auto_now_add=True)
     published_at = models.DateTimeField(null=True)
-    category = models.CharField(max_length=50, choices=get_tuples_from_list(ALL_CATEGORIES), null=True)
 
     def __str__(self):
         return f'id: {self.pk }, author: {self.author}, {self.title}, {self.status}, created_at: {self.created_at}'
@@ -58,8 +56,10 @@ class Blog(models.Model):
     def to_json(self):
         return {'title': self.title,
                 'text': self.text,
+                'category': self.category,
                 'author': self.author,
                 'status': self.status,
                 'created_at': self.created_at.isoformat(),
-                'published_at': self.published_at.isoformat() if self.published_at else None,
-                'category': self.category}
+                'published_at': self.published_at.isoformat() if self.published_at else None
+                }
+                
