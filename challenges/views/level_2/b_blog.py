@@ -9,14 +9,15 @@
 - реализовать у модели метод to_json, который будет преобразовывать объект книги в json-сериализуемый словарь
 - по очереди реализовать каждую из вьюх в этом файле, проверяя правильность их работу в браузере
 """
-from django.http import HttpRequest, HttpResponse
-
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
+from challenges.models import Blog
+from datetime import datetime, timedelta
 
 def last_posts_list_view(request: HttpRequest) -> HttpResponse:
     """
     В этой вьюхе вам нужно вернуть 3 последних опубликованных поста.
     """
-    pass
+    return Blog.objects.latest()[:3]
 
 
 def posts_search_view(request: HttpRequest) -> HttpResponse:
@@ -32,7 +33,7 @@ def untagged_posts_list_view(request: HttpRequest) -> HttpResponse:
     """
     В этой вьюхе вам нужно вернуть все посты без категории, отсортируйте их по автору и дате создания.
     """
-    pass
+    return Blog.objects.filter(category=None).order_by('author', '-created_at').all()
 
 
 def categories_posts_list_view(request: HttpRequest) -> HttpResponse:
@@ -48,4 +49,14 @@ def last_days_posts_list_view(request: HttpRequest) -> HttpResponse:
     В этой вьюхе вам нужно вернуть посты, опубликованные за последние last_days дней.
     Значение last_days возьмите из соответствующего get-параметра.
     """
+    last_days = request.GET.get('last_days')
+    
+    if not last_days:
+        HttpResponseBadRequest('Missing parametr "last_days"')
+    try:
+        last_days = int(last_days)
+    except ValueError:
+        HttpResponseBadRequest('Parametr "last_days" should be integer')
+    datetime_now = datetime.now() - timedelta(days=last_days)
+    return Blog.objects.filter(published_at__gte=datetime_now).all()
     pass
