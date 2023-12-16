@@ -38,18 +38,17 @@ def posts_search_view(request: HttpRequest) -> HttpResponse:
     """
     title = request.GET.get('title')
     text = request.GET.get('text')
+
     if not any([title, text]):
         return HttpResponseBadRequest('Required params are missing!')
-    all_posts = Blog.objects.all()
-
-    if title and text:
-        posts = all_posts.filter(title=title, text__icontains=text)
     
+    filter_params = {}
     if title:
-        posts = all_posts.filter(title=title)
-    
+        filter_params['title'] = title
     if text:
-        posts = all_posts.filter(text__icontains=text)
+        filter_params['text__icontains'] = text
+
+    posts = Blog.objects.filter(**filter_params)
 
     return HttpResponse(json.dumps(get_dict_for_queryset(posts)))
 
@@ -58,7 +57,7 @@ def untagged_posts_list_view(request: HttpRequest) -> HttpResponse:
     """
     В этой вьюхе вам нужно вернуть все посты без категории, отсортируйте их по автору и дате создания.
     """
-    posts = Blog.objects.filter(category__isnull=True).order_by('author', '-created_at').all()
+    posts = Blog.objects.filter(category__isnull=True).order_by('author', '-created_at')
     return HttpResponse(json.dumps(get_dict_for_queryset(posts)))
 
 
@@ -91,6 +90,6 @@ def last_days_posts_list_view(request: HttpRequest) -> HttpResponse:
     except TypeError:
         return HttpResponseBadRequest('Parametr "last_days" should be integer')
     datetime_now = datetime.now() - timedelta(days=last_days)
-    posts = Blog.objects.filter(published_at__gte=datetime_now).all()
+    posts = Blog.objects.filter(published_at__gte=datetime_now)
 
     return HttpResponse(json.dumps(get_dict_for_queryset(posts)))
