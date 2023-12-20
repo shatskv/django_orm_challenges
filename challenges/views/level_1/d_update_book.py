@@ -16,9 +16,6 @@ def update_book(book_id: int, new_title: str, new_author_full_name: str, new_isb
     try:
         book = Book.objects.get(pk=book_id)
     except Book.DoesNotExist:
-        book = None
-    
-    if not book:
         return None
     
     book.title = new_title
