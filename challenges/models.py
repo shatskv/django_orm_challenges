@@ -1,10 +1,5 @@
 from django.db import models
-from django.forms.models import model_to_dict
-ALL_STATUSES = ['published', 'not published', 'banned']
-ALL_CATEGORIES = ['Sience fiction', 'Drama', 'Comedia', 'Sience', 'Detective', 'Medicine']
 
-def get_tuples_from_list(data):
-    return [(item, item) for item in data]
 
 class Book(models.Model):
     title = models.CharField(max_length=256)
@@ -42,11 +37,24 @@ class Blog(models.Model):
         get_latest_by = 'created_at'
         ordering = ['-created_at']
 
+    class Category(models.TextChoices):
+        SIENCE_FICTION = 'Sience fiction'
+        DRAMA = 'Drama'
+        COMEDIA = 'Comedia'
+        SIENCE = 'Sience'
+        DETECTIVE = 'Detective'
+        MEDICINE = 'Medicine'
+
+    class PublishStatus(models.TextChoices):
+        PUBLISHED = 'published'
+        NOT_PUBLISHED = 'not published'
+        BANNED = 'banned'
+
     title = models.CharField(max_length=256)
-    text = models.TextField()
-    category = models.CharField(max_length=50, choices=get_tuples_from_list(ALL_CATEGORIES), null=True)
+    text = models.TextField(max_length=10000)
+    category = models.CharField(max_length=50, choices=Category.choices, null=True)
     author = models.CharField(max_length=256)
-    status = models.CharField(max_length=25, choices=get_tuples_from_list(ALL_STATUSES))
+    status = models.CharField(max_length=25, choices=PublishStatus.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     published_at = models.DateTimeField(null=True)
 
